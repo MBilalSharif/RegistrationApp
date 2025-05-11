@@ -1,55 +1,65 @@
 const cors = require('cors');
 const express = require('express');
+const path = require('path');
+require('dotenv').config();
 const mongoose = require('mongoose');
-const FormDataModel = require ('./models/FormData');
 
+const FormDataModel = require('./models/FormData');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect('mongodb://127.0.0.1:27017/practice_mern');
+// ✅ Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB Atlas connected ✅'))
+  .catch(err => console.log('MongoDB connection error ❌:', err));
 
-app.post('/register', (req, res)=>{
-    // To post / insert data into database
+// ✅ Serve static files from Vite build
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-    const {email, password} = req.body;
-    FormDataModel.findOne({email: email})
+// ✅ Optional API health check
+app.get('/', (req, res) => {
+  res.send('Backend API is running ✅');
+});
+
+// ✅ API Routes
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+  FormDataModel.findOne({ email: email })
     .then(user => {
-        if(user){
-            res.json("Already registered")
-        }
-        else{
-            FormDataModel.create(req.body)
-            .then(log_reg_form => res.json(log_reg_form))
-            .catch(err => res.json(err))
-        }
-    })
-    
-})
+      if (user) {
+        res.json("Already registered");
+      } else {
+        FormDataModel.create(req.body)
+          .then(log_reg_form => res.json(log_reg_form))
+          .catch(err => res.json(err));
+      }
+    });
+});
 
-app.post('/login', (req, res)=>{
-    // To find record from the database
-    const {email, password} = req.body;
-    FormDataModel.findOne({email: email})
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  FormDataModel.findOne({ email: email })
     .then(user => {
-        if(user){
-            // If user found then these 2 cases
-            if(user.password === password) {
-                res.json("Success");
-            }
-            else{
-                res.json("Wrong password");
-            }
+      if (user) {
+        if (user.password === password) {
+          res.json("Success");
+        } else {
+          res.json("Wrong password");
         }
-        // If user not found then 
-        else{
-            res.json("No records found! ");
-        }
-    })
-})
+      } else {
+        res.json("No records found!");
+      }
+    });
+});
 
+// ✅ Catch-all route to serve React frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
+// ✅ Start server
 app.listen(3001, () => {
-    console.log("Server listining on http://127.0.0.1:3001");
-
+  console.log("Server listening on http://127.0.0.1:3001");
 });

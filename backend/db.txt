@@ -1,0 +1,1 @@
+mongodb+srv://bilalsaeedmbs:bilal508@cluster0.e6btj.mongodb.net/practice_mern?retryWrites=true&w=majority&appName=Cluster0

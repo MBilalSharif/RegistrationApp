@@ -60,6 +60,6 @@ app.get('*', (req, res) => {
 });
 
 // ✅ Start server
-app.listen(3001, () => {
-  console.log("Server listening on http://127.0.0.1:3001");
+app.listen(process.env.PORT || 5000, '0.0.0.0',() => {
+  console.log("Server listening on http://127.0.0.1:5000");
 });

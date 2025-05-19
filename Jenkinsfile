@@ -1,23 +1,16 @@
 pipeline {
     agent any
+
     stages {
-        // Stage 1: Fetch code from GitHub
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                git(
-                    url: 'https://github.com/MBilalSharif/RegistrationApp',
-                    credentialsId: 'your-github-credential-id',
-                    branch: 'main'
-                )
+                git branch: 'main', url: 'https://github.com/MBilalSharif/RegistrationApp'
             }
         }
-        // Stage 2: Build & Run Docker containers
-        stage('Build with Docker') {
+
+        stage('Build with Docker Compose') {
             steps {
-                script {
-                    // Build and run using docker-compose
-                    sh 'docker-compose -p my_jenkins_project -f docker-compose.yml up -d --build'
-                }
+                sh 'cd $WORKSPACE && docker-compose -p jenkins-taskflow -f docker-compose.yml up --build -d'
             }
         }
     }
